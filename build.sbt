@@ -5,7 +5,7 @@ ThisBuild / homepage := Some(url("https://github.com/randomserver/linear"))
 lazy val publishSettings = sys.env.get("GITHUB_TOKEN").map[Seq[Def.Setting[_]]] { password =>
   Seq(
     credentials += Credentials("GitHub Package Registry", "maven.pkg.github.com", "randomserver", password),
-    publishTo := Some("GitHub Package Registry" at "https://maven.pkg.github.com/randomserver/vmath")
+    publishTo := Some("GitHub Package Registry" at "https://maven.pkg.github.com/randomserver/linear")
   )
 }.getOrElse(Seq.empty[Def.Setting[_]])
 

@@ -1,10 +1,14 @@
-package vector
+package linear.vector
+
+import linear.affine.Affine
+import linear.metric.Metric
+import linear.vector.Additive
+import linear.{R1, R2}
 
 import cats.*
 import cats.syntax.{*, given}
-import linear.{Additive, Affine, R1, R2}
-import linear.{*, given}
-import Numeric.Implicits.{given, *}
+
+import scala.math.Numeric.Implicits.given
 
 case class V2[T](x: T, y: T)
 

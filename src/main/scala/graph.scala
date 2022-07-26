@@ -1,9 +1,11 @@
 package graph
 
-import cats._
-import vector.crossZ
+import cats.*
+import linear.vector.crossZ
 import linear.{*, given}
-import cats.syntax.{given, *}
+import cats.syntax.{*, given}
+import linear.metric.{*, given}
+import linear.vector.{*, given}
 
 import java.util.UUID
 

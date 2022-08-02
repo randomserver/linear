@@ -1,12 +1,13 @@
+package se.randomserver
 package linear.affine
 
-import cats.syntax.{*, given}
-import cats.*
 import linear.{R1, R2}
 import linear.vector.Additive
+import cats.*
+import cats.syntax.{*, given}
 
-import Numeric.Implicits.{*, given}
-import Fractional.Implicits.{*, given}
+import scala.math.Fractional.Implicits.{*, given}
+import scala.math.Numeric.Implicits.{*, given}
 
 trait Affine[P[_]: Foldable: Additive: Apply]:
   def qdA[B: Numeric](p1: P[B], p2: P[B]): B =
@@ -15,7 +16,7 @@ trait Affine[P[_]: Foldable: Additive: Apply]:
   def distanceA(p1: P[Double], p2: P[Double]): Double = Math.sqrt(qdA(p1, p2))
 
 object Affine:
-  def apply[P[_]](using a: Affine[P]) = a
+  def apply[P[_]](using a: Affine[P]): Affine[P] = a
 
 type PointType = [P[_]] =>> [A] =>> Point[P, A]
 case class Point[P[_], A](unP: P[A])
@@ -46,6 +47,4 @@ given [P[_]: Affine: Additive: Foldable: Apply]: Additive[PointType[P]] with Aff
   override def distanceA(p1: PointType[P][Double], p2: PointType[P][Double]): Double = Affine[P].distanceA(p1.unP, p2.unP)
 
   override def qdA[B: Numeric](p1: PointType[P][B], p2: PointType[P][B]): B = Affine[P].qdA(p1.unP, p2.unP)
-
-  extension [B: Numeric](p: PointType[P][B])
-    def zero: PointType[P][B] = Point(p.unP.zero)
+  def zero[B: Numeric]: PointType[P][B] = Point(summon[Additive[P]].zero)

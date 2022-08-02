@@ -1,8 +1,9 @@
+package se.randomserver
 package linear.vector
 
 import linear.affine.Affine
 import linear.metric.Metric
-import linear.vector.Additive
+import linear.vector.{Additive, V2}
 import linear.{R1, R2}
 
 import cats.*
@@ -33,8 +34,7 @@ given R1[V2] with R2[V2] with
     def y: B = p.y
 
 given Additive[V2] with Affine[V2] with Metric[V2] with
-  extension[B: Numeric] (p: V2[B])
-    def zero: V2[B] = V2(Numeric[B].zero, Numeric[B].zero)
+  def zero[B: Numeric]: V2[B] = V2(Numeric[B].zero, Numeric[B].zero)
 
 def crossZ[B: Numeric](p1: V2[B], p2: V2[B]): B = (p1, p2) match
   case V2(x1, y1) -> V2(x2, y2) => (x1 * y2) - (y1 * x2)

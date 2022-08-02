@@ -1,11 +1,13 @@
-package graph
+/*package graph
 
 import cats.*
-import linear.vector.crossZ
+import se.randomserver.linear.vector.crossZ
 import linear.{*, given}
 import cats.syntax.{*, given}
 import linear.metric.{*, given}
 import linear.vector.{*, given}
+import se.randomserver.linear.metric.Metric
+import se.randomserver.linear.vector.Additive
 
 import java.util.UUID
 
@@ -51,3 +53,5 @@ case class Graph[P[_]: Metric: Additive: Apply](vertices: Map[NodeId,P[Double]],
           .updated(EdgeId(), e2)
       )
   }
+
+ */

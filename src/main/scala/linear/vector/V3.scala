@@ -1,8 +1,9 @@
+package se.randomserver
 package linear.vector
 
 import linear.affine.Affine
 import linear.metric.Metric
-import linear.vector.Additive
+import linear.vector.{Additive, V3}
 import linear.{R1, R2, R3}
 
 import cats.*
@@ -32,8 +33,7 @@ given Apply[V3] with Foldable[V3] with
     (f: (A, cats.Eval[B]) => cats.Eval[B]): cats.Eval[B] = f(fa.z, f(fa.y, f(fa.x, lb)))
 
 given Additive[V3] with Affine[V3] with Metric[V3] with
-  extension[B: Numeric](p: V3[B])
-    def zero: V3[B] = V3(Numeric[B].zero, Numeric[B].zero, Numeric[B].zero)
+  def zero[B: Numeric]: V3[B] = V3(Numeric[B].zero, Numeric[B].zero, Numeric[B].zero)
 
 def cross[B: Numeric](v1: V3[B], v2: V3[B]): V3[B] = (v1, v2) match
   case (V3(a, b, c), V3(d, e, f)) => V3(b*f-c*e, c*d-a*f, a*e-b*d)

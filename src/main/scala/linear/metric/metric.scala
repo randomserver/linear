@@ -1,9 +1,13 @@
+package se.randomserver
 package linear.metric
 
+import linear.metric.Metric
 import linear.vector.{*, given}
+
 import cats.{Apply, Foldable}
-import Numeric.Implicits.{given, *}
-import Fractional.Implicits.{given, *}
+
+import scala.math.Fractional.Implicits.{*, given}
+import scala.math.Numeric.Implicits.{*, given}
 
 trait Metric[P[_]: Additive: Foldable: Apply]:
   def dot[B: Numeric](p1: P[B], p2: P[B]): B = Foldable[P].sumAll(

@@ -1,9 +1,13 @@
+package se.randomserver
 package linear
 
-import cats._
-import cats.syntax.{given, *}
-import Numeric.Implicits.{given, *}
-import Fractional.Implicits.{given, *}
+import linear.{R1, R2}
+
+import cats.*
+import cats.syntax.{*, given}
+
+import scala.math.Fractional.Implicits.{*, given}
+import scala.math.Numeric.Implicits.{*, given}
 
 
 trait R1[P[_]]:

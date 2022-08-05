@@ -14,5 +14,8 @@ lazy val root = (project in file("."))
     },
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % "2.8.0"
+    ),
+    Compile / scalacOptions ++= Seq(
+      "-Ykind-projector:underscores"
     )
   )

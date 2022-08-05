@@ -29,11 +29,10 @@ object V3Instances:
       (fa: V3[A], lb: cats.Eval[B])
       (f: (A, cats.Eval[B]) => cats.Eval[B]): cats.Eval[B] = f(fa.z, f(fa.y, f(fa.x, lb)))
 
-  given Additive[V3] with
+  given Additive[V3] with Metric[V3] with
     def zero[B: Numeric]: V3[B] = V3(Numeric[B].zero, Numeric[B].zero, Numeric[B].zero)
 
-  given Affine[V3] with
-    type Diff = V3[_]
+  given Affine[V3, V3] with
     override def subtractOffset[A: Numeric](p1: V3[A], d: V3[A]): V3[A] = p1 ^-^ d
 
     override def addOffset[A: Numeric](p1: V3[A], d: V3[A]): V3[A] = p1 ^+^ d

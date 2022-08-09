@@ -32,12 +32,24 @@ object V3Instances:
   given Additive[V3] with Metric[V3] with
     def zero[B: Numeric]: V3[B] = V3(Numeric[B].zero, Numeric[B].zero, Numeric[B].zero)
 
-  given Affine[V3, V3] with
-    override def subtractOffset[A: Numeric](p1: V3[A], d: V3[A]): V3[A] = p1 ^-^ d
+  given Affine[V3] with
+    type Diff[A] = V3[A]
+    override def subtractOffset[A: Numeric](p1: V3[A], d: Diff[A]): V3[A] = p1 ^-^ d
 
-    override def addOffset[A: Numeric](p1: V3[A], d: V3[A]): V3[A] = p1 ^+^ d
+    override def addOffset[A: Numeric](p1: V3[A], d: Diff[A]): V3[A] = p1 ^+^ d
 
-    override def diffOffset[A: Numeric](p1: V3[A], p2: V3[A]): V3[A] = p1 ^-^ p2
+    override def diffOffset[A: Numeric](p1: V3[A], p2: V3[A]): Diff[A] = p1 ^-^ p2
+
+  //given Finite[V3] with Dim[V3] with
+  //  type Size[V3] = 3
+
+  //  override def dim[A](a: V3[A]): Int = 3
+
+  //  override def toV[A](p: V3[A]): V[3, A] = p match
+  //    case V3(x, y, z) => V(3, Vector(x, y, z))
+
+  //  override def fromV[A](v: V[3, A]): V3[A] = v match
+  //    case V(s, Vector(x, y, z)) => V3(x, y, z)
 
   def cross[B: Numeric](v1: V3[B], v2: V3[B]): V3[B] = (v1, v2) match
     case (V3(a, b, c), V3(d, e, f)) => V3(b*f-c*e, c*d-a*f, a*e-b*d)

@@ -11,4 +11,5 @@ object syntax {
   export Affine.{*,given}
   export V2Instances.{*,given}
   export V3Instances.{*,given}
+  export Vector.{*, given}
 }

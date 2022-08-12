@@ -5,6 +5,9 @@ import cats.*
 import cats.syntax.{*, given}
 import linear.Floating.{*, given}
 import linear.Additive.{*, given}
+import linear.Finite
+
+import se.randomserver.linear.Vector.V
 
 import scala.annotation.targetName
 import scala.math.Fractional.Implicits.{*, given}
@@ -29,6 +32,9 @@ object Affine:
 
   //def apply[P[_]](using a: Affine[P, _]): Affine[P, _] = a
 
+  type Aux[P[_], D[_]] = Affine[P] {
+    type Diff[AA] = D[AA]
+  }
 
   def qdA[P[_], B: Numeric](p1: P[B], p2: P[B])(using A: Affine[P], F: Foldable[A.Diff], App: Apply[A.Diff]): B =
     F.sumAll(App.fmap(A.diffOffset(p2, p1))(b => b * b))
@@ -50,13 +56,19 @@ object Affine:
       (fa: PointP[A], lb: cats.Eval[B])
       (f: (A, cats.Eval[B]) => cats.Eval[B]): cats.Eval[B] = summon[Foldable[P]].foldRight(fa, lb)(f)
 
-  given [P[_], PointP <: [A] =>> Point[P, A]](using A: Affine[P], DF: Foldable[A.Diff]): Affine[PointP] with
+  given [P[_]](using A: Aux[P, P]): Affine[[A] =>> Point[P, A]] with
+    type Diff[AA] = Point[A.Diff, AA]
+    override def addOffset[A: Numeric](p1: Point[P, A], d: Diff[A]): Point[P, A] = A.addOffset(p1, d)
 
-    override type Diff[AA] = Point[A.Diff, AA]
-    override def addOffset[A: Numeric](p1: PointP[A], d: Diff[A]): PointP[A] = Point(A.addOffset(p1, d)).asInstanceOf[PointP[A]]
+    override def subtractOffset[A: Numeric](p1: Point[P, A], d: Diff[A]): Point[P, A] = A.subtractOffset(p1, d)
 
-    override def diffOffset[A: Numeric](p1: PointP[A], p2: PointP[A]): Diff[A] = Point(A.diffOffset(p1, p2))
+    override def diffOffset[A: Numeric](p1: Point[P, A], p2: Point[P, A]): Diff[A] = A.diffOffset(p1, p2)
 
-    override def subtractOffset[A: Numeric](p1: PointP[A], d: Diff[A]): PointP[A] = Point(A.subtractOffset(p1, d)).asInstanceOf[PointP[A]]
+  given [P[_], A: Show](using S: Show[P[A]]): Show[Point[P, A]] with
+    override def show(t: Point[P, A]): String = s"Point(${S.show(t)})"
 
+  given [P[_], N <: Int](using F: Finite[P, N]): Finite[[A] =>> Point[P, A], N] with
+    override def toV[A](p: Point[P, A]): V[N, A] = F.toV(p)
+
+    override def fromV[A](v: V[N, A]): Point[P, A] = F.fromV(v)
 end Affine

@@ -10,18 +10,19 @@ import scala.reflect.ClassTag
 
 
 
-trait Finite[P[_]]:
+trait Finite[P[_], N <: Int]:
   import Vector.V
-  type Size[P[_]] <: Int
-
-  def toV[A](p: P[A]): V[Size[P], A]
-  def fromV[A](v: V[Size[P] ,A]): P[A]
+  def toV[A](p: P[A]): V[N, A]
+  def fromV[A](v: V[N ,A]): P[A]
 
 trait Dim[P[_]]:
   def dim[A](a: P[A]): Int
 
 object Vector {
   opaque type V[N, A] = IM.Vector[A]
+
+  extension [N <: Int, A](v: V[N, A])
+    def !(n: Int): A = v(n)
 
   object V:
     def apply[N, A](elems: A*): V[N, A] = IM.Vector(elems: _*)
@@ -40,14 +41,14 @@ object Vector {
       }
     ).asInstanceOf[VN[B]]
 
-  given [N <: Int, VN <: [A] =>> V[N, A] : Applicative]: Additive[VN] with
+  given [N, VN <: [A] =>> V[N, A] : Applicative]: Additive[VN] with
     override def zero[B: Numeric]: VN[B] = V(
       summon[Applicative[VN]].pure(
         summon[Numeric[B]].zero
       )
     ).asInstanceOf[VN[B]]
 
-  given [N <: Int, VN <: [A] =>> V[N, A] : Additive]: Affine[VN] with
+  given [N, VN <: [A] =>> V[N, A] : Additive]: Affine[VN] with
     override type Diff[AA] = VN[AA]
 
     override def addOffset[A: Numeric](p1: VN[A], d: Diff[A]): VN[A] = p1 ^+^ d

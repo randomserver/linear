@@ -5,27 +5,38 @@ import linear.{R1, R2, R3}
 
 import cats.*
 import cats.syntax.{*, given}
+import se.randomserver.linear.Vector.V
 
 import scala.math.Numeric.Implicits.given
 
 case class V3[B](x: B, y: B, z: B)
 
 object V3Instances:
+  given [A: Show]: Show[V3[A]] with
+    override def show(t: V3[A]): String = s"V3(${t.x}, ${t.y}, ${t.z})"
+    
+  given Finite[V3, 3] with
+    override def fromV[A](v: V[3, A]): V3[A] = V3(v ! 0, v ! 1, v ! 2)
+
+    override def toV[A](p: V3[A]): V[3, A] = V(p.x, p.y, p.z)
+    
+
   given R1[V3] with R2[V3] with R3[V3] with
       def x[B](p: V3[B]): B = p.x
       def y[B](p: V3[B]): B = p.y
       def z[B](p: V3[B]): B = p.z
 
-  given Apply[V3] with Foldable[V3] with
-    def map[A, B](fa: V3[A])(f: A => B): V3[B] = fa match {
+  given Applicative[V3] with Apply[V3] with Foldable[V3] with
+    override def pure[A](x: A): V3[A] = V3(x, x, x)
+    override def map[A, B](fa: V3[A])(f: A => B): V3[B] = fa match {
       case V3(x, y, z) => V3(f(x), f(y), f(z))
     }
 
-    def ap[A, B](ff: V3[A => B])(fa: V3[A]): V3[B] = (ff, fa) match {
+    override def ap[A, B](ff: V3[A => B])(fa: V3[A]): V3[B] = (ff, fa) match {
       case (V3(ff1, ff2, ff3), V3(b1, b2, b3)) => V3(ff1(b1), ff2(b2), ff3(b3))
     }
-    def foldLeft[A, B](fa: V3[A], b: B)(f: (B, A) => B): B = f(f(f(b, fa.x), fa.y), fa.z)
-    def foldRight[A, B]
+    override def foldLeft[A, B](fa: V3[A], b: B)(f: (B, A) => B): B = f(f(f(b, fa.x), fa.y), fa.z)
+    override def foldRight[A, B]
       (fa: V3[A], lb: cats.Eval[B])
       (f: (A, cats.Eval[B]) => cats.Eval[B]): cats.Eval[B] = f(fa.z, f(fa.y, f(fa.x, lb)))
 

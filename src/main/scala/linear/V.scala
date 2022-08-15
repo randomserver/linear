@@ -10,10 +10,16 @@ import scala.reflect.ClassTag
 
 
 
-trait Finite[P[_], N <: Int]:
+trait Finite[P[_]]:
   import Vector.V
-  def toV[A](p: P[A]): V[N, A]
-  def fromV[A](v: V[N ,A]): P[A]
+  type Size <: Int
+  def toV[A](p: P[A]): V[Size, A]
+  def fromV[A](v: V[Size ,A]): P[A]
+
+object Finite:
+  type Aux[P[_], N <: Int] = Finite[P] {
+    type Size = N
+  }
 
 trait Dim[P[_]]:
   def dim[A](a: P[A]): Int
@@ -56,4 +62,9 @@ object Vector {
     override def diffOffset[A: Numeric](p1: VN[A], p2: VN[A]): Diff[A] = p1 ^-^ p2
 
     override def subtractOffset[A: Numeric](p1: VN[A], d: Diff[A]): VN[A] = p1 ^-^ d
+
+  //given [P[_], A](using f: Finite[P]): Conversion[P[A], V[Finite[P]#Size, A]] with
+  //  override def apply(x: P[A]): V[Finite[P]#Size, A] = f.toV(x)
+
+  def toV[P[_], A, N <: Int](p: P[A])(using f: Finite[P]): V[f.Size, A] = f.toV(p)
 }

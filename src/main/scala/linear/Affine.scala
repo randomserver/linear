@@ -67,8 +67,10 @@ object Affine:
   given [P[_], A: Show](using S: Show[P[A]]): Show[Point[P, A]] with
     override def show(t: Point[P, A]): String = s"Point(${S.show(t)})"
 
-  given [P[_], N <: Int](using F: Finite[P, N]): Finite[[A] =>> Point[P, A], N] with
-    override def toV[A](p: Point[P, A]): V[N, A] = F.toV(p)
+  given [P[_], N <: Int](using F: Finite.Aux[P, N]): Finite[[A] =>> Point[P, A]] with
+    type Size = F.Size
 
-    override def fromV[A](v: V[N, A]): Point[P, A] = F.fromV(v)
+    override def toV[A](p: Point[P, A]): V[F.Size, A] = F.toV(p)
+    override def fromV[A](v: V[F.Size, A]): Point[P, A] = F.fromV(v)
+
 end Affine

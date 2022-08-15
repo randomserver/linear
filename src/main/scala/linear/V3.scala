@@ -15,10 +15,11 @@ object V3Instances:
   given [A: Show]: Show[V3[A]] with
     override def show(t: V3[A]): String = s"V3(${t.x}, ${t.y}, ${t.z})"
     
-  given Finite[V3, 3] with
-    override def fromV[A](v: V[3, A]): V3[A] = V3(v ! 0, v ! 1, v ! 2)
+  given Finite[V3] with
+    type Size = 3
+    override def fromV[A](v: V[Size, A]): V3[A] = V3(v ! 0, v ! 1, v ! 2)
 
-    override def toV[A](p: V3[A]): V[3, A] = V(p.x, p.y, p.z)
+    override def toV[A](p: V3[A]): V[Size, A] = V(p.x, p.y, p.z)
     
 
   given R1[V3] with R2[V3] with R3[V3] with

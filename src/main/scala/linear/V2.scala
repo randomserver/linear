@@ -15,10 +15,12 @@ object V2Instances:
   given[A: Show]: Show[V2[A]] with
     override def show(t: V2[A]): String = s"V2(${t.x}, ${t.y})"
 
-  given Finite[V2, 2] with
-    override def fromV[A](v: V[2, A]): V2[A] = V2(v ! 0, v ! 1)
+  given Finite[V2] with
+    type Size = 2
 
-    override def toV[A](p: V2[A]): V[2, A] = V(p.x, p.y)
+    override def fromV[A](v: V[Size, A]): V2[A] = V2(v ! 0, v ! 1)
+
+    override def toV[A](p: V2[A]): V[Size, A] = V(p.x, p.y)
 
   given Applicative[V2] with Apply[V2] with Foldable[V2] with
     override def pure[A](x: A): V2[A] = V2(x, x)

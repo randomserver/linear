@@ -3,13 +3,15 @@ package linear
 
 import linear.Floating.{*, given}
 import linear.Additive.{*, given}
-import cats.{Apply, Foldable}
+
+import cats.{Applicative, Apply, Foldable}
+
 import scala.math.Fractional.Implicits.{*, given}
 import scala.math.Numeric.Implicits.{*, given}
 
-trait Metric[P[_]: Additive: Foldable: Apply]:
-  def dot[B: Numeric](p1: P[B], p2: P[B]): B = Foldable[P].sumAll(
-    Apply[P].map2(p1, p2) {
+trait Metric[P[_]: Additive](using F: Foldable[P], A: Apply[P]):
+  def dot[B: Numeric](p1: P[B], p2: P[B]): B = F.sumAll(
+    A.map2(p1, p2) {
       case (a1, a2) => a1 * a2
     }
   )
@@ -19,7 +21,7 @@ trait Metric[P[_]: Additive: Foldable: Apply]:
   def norm[B: Floating](p: P[B]): B = sqrt(quadrance(p))
   def normalize[B: Floating](p: P[B]) =
     val l = norm(p)
-    Apply[P].map(p)(_ / l)
+    A.map(p)(_ / l)
 
 object Metric:
   def apply[P[_]](using m: Metric[P]) = m

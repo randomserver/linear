@@ -7,6 +7,7 @@ trait Floating[A] extends Fractional[A]:
   def sqrt(a: A): A
 
 object Floating:
+  export Fractional.Implicits.infixFractionalOps
   given Floating[Double] with Numeric.DoubleIsFractional with Ordering.Double.IeeeOrdering with
      override def sqrt(a: Double): Double = math.sqrt(a)
 

@@ -20,6 +20,12 @@ object V3Instances:
     override def fromV[A](v: V[Size, A]): V3[A] = V3(v ! 0, v ! 1, v ! 2)
 
     override def toV[A](p: V3[A]): V[Size, A] = V(p.x, p.y, p.z)
+
+  given Ix[V3] with
+    override def elem[B](p: V3[B], n: Int)(using f: Finite[V3]): B = (n, p) match
+      case 0 -> V3(x, _, _) => x
+      case 1 -> V3(_, y, _) => y
+      case 2 -> V3(_, _, z) => z
     
 
   given R1[V3] with R2[V3] with R3[V3] with

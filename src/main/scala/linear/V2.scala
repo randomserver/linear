@@ -22,6 +22,11 @@ object V2Instances:
 
     override def toV[A](p: V2[A]): V[Size, A] = V(p.x, p.y)
 
+  given Ix[V2] with
+    override def elem[B](p: V2[B], n: Int)(using Finite[V2]): B = (n, p)  match
+      case 0 -> V2(x, _) => x
+      case 1 -> V2(_, y) => y
+
   given Applicative[V2] with Apply[V2] with Foldable[V2] with
     override def pure[A](x: A): V2[A] = V2(x, x)
 

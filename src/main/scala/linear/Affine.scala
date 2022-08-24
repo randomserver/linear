@@ -73,4 +73,7 @@ object Affine:
     override def toV[A](p: Point[P, A]): V[F.Size, A] = F.toV(p)
     override def fromV[A](v: V[F.Size, A]): Point[P, A] = F.fromV(v)
 
+  given [P[_]](using ix: Ix[P]): Ix[Point[P, _]] with
+    override def elem[B](p: Point[P, B], n: Int)(using f: Finite[Point[P, _]]): B = ix.elem(p, n)
+
 end Affine

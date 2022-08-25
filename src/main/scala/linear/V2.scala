@@ -60,6 +60,6 @@ object V2Instances:
 
     override def diffOffset[A: Numeric](p1: V2[A], p2: V2[A]): Diff[A] = p1 ^-^ p2
 
-  def crossZ[B: Numeric](p1: V2[B], p2: V2[B]): B = (p1, p2) match
-    case V2(x1, y1) -> V2(x2, y2) => (x1 * y2) - (y1 * x2)
+  //def crossZ[B: Numeric](p1: V2[B], p2: V2[B]): B = (p1, p2) match
+  //  case V2(x1, y1) -> V2(x2, y2) => (x1 * y2) - (y1 * x2)
 end V2Instances

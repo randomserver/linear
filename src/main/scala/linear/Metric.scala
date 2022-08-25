@@ -24,5 +24,8 @@ trait Metric[P[_]: Additive](using F: Foldable[P], A: Apply[P]):
     A.map(p)(_ / l)
 
 object Metric:
-  def apply[P[_]](using m: Metric[P]) = m
+  def apply[P[_]](using m: Metric[P]): Metric[P] = m
+
+  def dot[P[_]: Metric, A: Numeric](a: P[A], b: P[A]): A = Metric[P].dot(a, b)
+  def quadrance[P[_]: Metric, A: Numeric](a: P[A]): A = Metric[P].quadrance(a)
 end Metric

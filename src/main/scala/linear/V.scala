@@ -5,6 +5,7 @@ import cats.{Applicative, Apply, Foldable, Functor, Show}
 import cats.syntax.show.{*, given}
 
 import scala.collection.immutable as IM
+import scala.math.Numeric.Implicits.infixNumericOps
 import scala.reflect.ClassTag
 
 
@@ -88,5 +89,9 @@ object Vector {
 
   given [N <: Int]: Ix[V[N, _]] with
     override def elem[B](p: V[N, B], n: Int)(using f: Finite[V[N, _]]): B = p.elems(n)
+    
+  
+  def crossZ[P[_], A: Numeric](a: P[A], b: P[A])(using Finite.Aux[P, 2], Ix[P]) =
+    (a ! 0) * (b ! 1) - (a ! 1) * (b ! 0)
 
 }

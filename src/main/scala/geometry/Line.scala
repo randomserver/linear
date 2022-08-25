@@ -12,6 +12,10 @@ import se.randomserver.linear
 case class Line[P[_], A](anchor: Point[P, A], dir: P[A])
 
 object Line:
+  def lineThrough[P[_], A: Numeric](p: Point[P, A], q: Point[P, A])(using Additive[P], Affine.Aux[P, P]): Line[P, A] =
+    val dir: P[A] = Point.unapply(q ~-~ p)
+    Line(p, dir)
+
   def isParallelTo[P[_]: Metric, A: Numeric]
     (l1: Line[P, A], l2: Line[P, A]): Boolean = (l1, l2) match
       case Line(_, u) -> Line(_, v) => scalarMultipleOf(u, v)
@@ -38,7 +42,7 @@ object Line:
         val (qx, qy) = (q ! 0, q ! 1)
         val (ux, uy) = (u ! 0, u ! 1)
         val (vx, vy) = (v ! 0, v ! 1)
-        val denom    = vy * ux - vx * uy
+        val denom = dot(v, u)
         val alpha = (ux * (py - qy) + uy * (qx - px)) / denom
 
         Some(Point(Point.unapply(q) ~+^ (v ^* alpha)))

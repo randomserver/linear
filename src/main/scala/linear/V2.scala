@@ -15,15 +15,11 @@ object V2Instances:
   given[A: Show]: Show[V2[A]] with
     override def show(t: V2[A]): String = s"V2(${t.x}, ${t.y})"
 
-  given Finite[V2] with
+  given Arity[V2] with
     type Size = 2
 
-    override def fromV[A](v: V[Size, A]): V2[A] = V2(v ! 0, v ! 1)
-
-    override def toV[A](p: V2[A]): V[Size, A] = V(p.x, p.y)
-
   given Ix[V2] with
-    override def elem[B](p: V2[B], n: Int)(using Finite[V2]): B = (n, p)  match
+    override def elem[B](p: V2[B], n: Int)(using Arity[V2]): B = (n, p)  match
       case 0 -> V2(x, _) => x
       case 1 -> V2(_, y) => y
 

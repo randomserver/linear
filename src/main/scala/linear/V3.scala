@@ -1,7 +1,7 @@
 package se.randomserver
 package linear
 
-import linear.{R1, R2, R3}
+import linear.{R1, R2, R3, Arity}
 
 import cats.*
 import cats.syntax.{*, given}
@@ -15,14 +15,8 @@ object V3Instances:
   given [A: Show]: Show[V3[A]] with
     override def show(t: V3[A]): String = s"V3(${t.x}, ${t.y}, ${t.z})"
     
-  given Finite[V3] with
-    type Size = 3
-    override def fromV[A](v: V[Size, A]): V3[A] = V3(v ! 0, v ! 1, v ! 2)
-
-    override def toV[A](p: V3[A]): V[Size, A] = V(p.x, p.y, p.z)
-
   given Ix[V3] with
-    override def elem[B](p: V3[B], n: Int)(using f: Finite[V3]): B = (n, p) match
+    override def elem[B](p: V3[B], n: Int)(using f: Arity[V3]): B = (n, p) match
       case 0 -> V3(x, _, _) => x
       case 1 -> V3(_, y, _) => y
       case 2 -> V3(_, _, z) => z

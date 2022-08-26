@@ -5,7 +5,6 @@ import cats.*
 import cats.syntax.{*, given}
 import linear.Floating.{*, given}
 import linear.Additive.{*, given}
-import linear.Finite
 
 import se.randomserver.linear.Vector.V
 
@@ -77,13 +76,10 @@ object Affine:
   given [P[_], A: Show](using S: Show[P[A]]): Show[Point[P, A]] with
     override def show(t: Point[P, A]): String = s"Point(${S.show(t)})"
 
-  given [P[_], N <: Int](using F: Finite.Aux[P, N]): Finite[[A] =>> Point[P, A]] with
-    type Size = F.Size
+  given [P[_], N <: Int](using arity: Arity.Aux[P, N]): Arity[Point[P, _]] with
+    type Size = arity.Size
 
-    override def toV[A](p: Point[P, A]): V[F.Size, A] = F.toV(p)
-    override def fromV[A](v: V[F.Size, A]): Point[P, A] = F.fromV(v)
-
-  given [P[_]](using ix: Ix[P]): Ix[Point[P, _]] with
-    override def elem[B](p: Point[P, B], n: Int)(using f: Finite[Point[P, _]]): B = ix.elem(p, n)
+  given [P[_]: Arity](using ix: Ix[P]): Ix[Point[P, _]] with
+    override def elem[B](p: Point[P, B], n: Int)(using f: Arity[Point[P, _]]): B = ix.elem(p, n)
 
 end Affine

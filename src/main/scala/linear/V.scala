@@ -10,24 +10,23 @@ import scala.reflect.ClassTag
 
 
 
-trait Finite[P[_]]:
-  import Vector.V
-  type Size <: Int
-  def toV[A](p: P[A]): V[Size, A]
-  def fromV[A](v: V[Size ,A]): P[A]
 
 import scala.compiletime.*
 
 trait Ix[P[_]]:
-  inline def checkArity(n: Int)(using f: Finite[P]): Int = if n >= constValue[f.Size] then error("Wrong arity") else n
-  def elem[B](p: P[B], n: Int)(using f: Finite[P]): B
-  extension [B](p: P[B])(using f: Finite[P])
+  inline def checkArity(n: Int)(using f: Arity[P]): Int = if n >= constValue[f.Size] then error("Wrong arity") else n
+  def elem[B](p: P[B], n: Int)(using f: Arity[P]): B
+  extension [B](p: P[B])(using f: Arity[P])
     inline def !(n: Int): B =  elem[B](p, checkArity(n))
 
-object Finite:
-  type Aux[P[_], N <: Int] = Finite[P] {
-    type Size = N
-  }
+object Arity:
+ type Aux[P[_], N <: Int] = Arity[P] {
+  type Size = N
+ }
+end Arity
+
+trait Arity[P[_]]:
+  type Size <: Int
 
 trait Dim[P[_]]:
   def dim[A](a: P[A]): Int
@@ -75,23 +74,16 @@ object Vector {
 
     override def subtractOffset[A: Numeric](p1: V[N, A], d: Diff[A]): V[N, A] = p1 ^-^ d
 
-    given [P[_], A](using f: Finite[P]): Conversion[P[A], V[f.Size, A]] with
-      override def apply(x: P[A]): V[f.Size, A] = f.toV(x)
+  //def toV[P[_], A, N <: Int](p: P[A])(using a: Arity.Aux[P, N], f: Finite.Aux[P, N]): V[N, A] = f.toV(p)
 
-  def toV[P[_], A, N <: Int](p: P[A])(using f: Finite[P]): V[f.Size, A] = f.toV(p)
-
-  given [N <: Int]: Finite[V[N, _]] with
+  given [N <: Int]: Arity[V[N, _]] with
     override type Size = N
 
-    override def fromV[A](v: V[Size, A]): V[N, A] = identity(v)
-
-    override def toV[A](p: V[N, A]): V[Size, A] = identity(p)
-
   given [N <: Int]: Ix[V[N, _]] with
-    override def elem[B](p: V[N, B], n: Int)(using f: Finite[V[N, _]]): B = p.elems(n)
+    override def elem[B](p: V[N, B], n: Int)(using f: Arity[V[N, _]]): B = p.elems(n)
     
   
-  def crossZ[P[_], A: Numeric](a: P[A], b: P[A])(using Finite.Aux[P, 2], Ix[P]) =
+  def crossZ[P[_], A: Numeric](a: P[A], b: P[A])(using Arity.Aux[P, 2], Ix[P]) =
     (a ! 0) * (b ! 1) - (a ! 1) * (b ! 0)
 
 }

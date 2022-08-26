@@ -5,12 +5,12 @@ import linear.Affine.Point
 import linear.syntax.{*, given}
 
 import math.Ordering.Implicits.infixOrderingOps
-import se.randomserver.linear.{Additive, Affine, Finite, Floating, Ix, Metric}
+import se.randomserver.linear.{Additive, Affine, Arity, Floating, Ix, Metric}
 
 case class LineSegment[P[_], A](start: Point[P, A], end: Point[P, A])
 
 object LineSegment:
-  given [P[_], A: Numeric](using Additive[P], Ix[P], Finite.Aux[P, 2], Metric[P], Affine.Aux[P, P]): IsIntersectableWith[LineSegment[P, A], Point[P, A]] with
+  given [P[_], A: Numeric](using Additive[P], Ix[P], Metric[P], Arity.Aux[P, 2], Affine.Aux[P, P]): IsIntersectableWith[LineSegment[P, A], Point[P, A]] with
     override type Intersection = Point[P, A]
 
     override def intersect(ls: LineSegment[P, A], c: Point[P, A]): Option[Intersection] = ls match
@@ -39,7 +39,7 @@ object LineSegment:
   /**
    * LineSegment -> LineSegment intersection
     */
-  given [P[_], A: Numeric: Floating] (using Additive[P], Ix[P], Finite.Aux[P, 2], Metric[P], Affine.Aux[P,P]): IsIntersectableWith[LineSegment[P,A], LineSegment[P, A]] with
+  given [P[_], A: Numeric: Floating] (using Additive[P], Ix[P], Metric[P], Arity.Aux[P, 2], Affine.Aux[P,P]): IsIntersectableWith[LineSegment[P,A], LineSegment[P, A]] with
     override type Intersection = Point[P,A] | LineSegment[P, A]
 
     protected def inrange[A: Numeric](a: (A,A), b: (A, A)): Boolean = (a, b) match

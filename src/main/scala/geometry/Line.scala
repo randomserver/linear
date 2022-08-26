@@ -1,7 +1,7 @@
 package se.randomserver
 package geometry
 
-import linear.{Additive, Affine, Finite, Floating, Ix, Metric, R2}
+import linear.{Additive, Affine, Arity, Floating, Ix, Metric, R2}
 import linear.syntax.{*, given}
 import geometry.Vector.*
 
@@ -30,7 +30,7 @@ object Line:
     override def intersect(a: Line[P, A], b: Point[P, A]) = if intersects(a, b) then Some(b) else None
     override def intersects(p1: Line[P, A], p2: Point[P, A]): Boolean = onLine(p2, p1)
 
-  given [P[_]: Metric: Ix, A: Numeric](using Floating[A], Additive[P], Affine.Aux[P, P], Finite.Aux[P, 2]): IsIntersectableWith[Line[P, A], Line[P, A]] with
+  given [P[_]: Metric: Ix, A: Numeric](using Floating[A], Additive[P], Affine.Aux[P, P], Arity.Aux[P, 2]): IsIntersectableWith[Line[P, A], Line[P, A]] with
     import Floating.{*, given}
     override type Intersection = Point[P, A] | Line[P, A]
 

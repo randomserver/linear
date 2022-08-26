@@ -82,5 +82,7 @@ object LineSegment:
                                                             else None
         else None
 
-    override def intersects(p1: LineSegment[P, A], p2: LineSegment[P, A]): Boolean = ???
+    override def intersects(p1: LineSegment[P, A], p2: LineSegment[P, A]): Boolean = intersect(p1, p2) match
+      case Some(_) => true
+      case None    => false
 end LineSegment

@@ -56,6 +56,16 @@ object Affine:
       (fa: PointP[A], lb: cats.Eval[B])
       (f: (A, cats.Eval[B]) => cats.Eval[B]): cats.Eval[B] = summon[Foldable[P]].foldRight(fa, lb)(f)
 
+  given [P[_]](using A: Additive[P]): Affine[P] with
+    override type Diff[AA] = P[AA]
+
+    override def subtractOffset[A: Numeric](p1: P[A], d: Diff[A]): P[A] = p1 ^-^ d
+
+    override def addOffset[A: Numeric](p1: P[A], d: Diff[A]): P[A] = p1 ^+^ d
+
+    override def diffOffset[A: Numeric](p1: P[A], p2: P[A]): Diff[A] = p1 ^-^ p2
+
+
   given [P[_]](using A: Aux[P, P]): Affine[[A] =>> Point[P, A]] with
     type Diff[AA] = Point[A.Diff, AA]
     override def addOffset[A: Numeric](p1: Point[P, A], d: Diff[A]): Point[P, A] = A.addOffset(p1, d)

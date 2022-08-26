@@ -52,14 +52,4 @@ object V2Instances:
   given Additive[V2] with Metric[V2] with
     def zero[B: Numeric]: V2[B] = V2(Numeric[B].zero, Numeric[B].zero)
 
-  given Affine[V2] with
-    type Diff[A] = V2[A]
-    override def subtractOffset[A: Numeric](p1: V2[A], d: Diff[A]): V2[A] = p1 ^-^ d
-
-    override def addOffset[A: Numeric](p1: V2[A], d: Diff[A]): V2[A] = p1 ^+^ d
-
-    override def diffOffset[A: Numeric](p1: V2[A], p2: V2[A]): Diff[A] = p1 ^-^ p2
-
-  //def crossZ[B: Numeric](p1: V2[B], p2: V2[B]): B = (p1, p2) match
-  //  case V2(x1, y1) -> V2(x2, y2) => (x1 * y2) - (y1 * x2)
 end V2Instances

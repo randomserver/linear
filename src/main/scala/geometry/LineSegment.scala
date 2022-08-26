@@ -1,6 +1,7 @@
 package se.randomserver
 package geometry
 
+import cats.{Foldable, Apply}
 import linear.Affine.Point
 import linear.syntax.{*, given}
 
@@ -10,7 +11,7 @@ import se.randomserver.linear.{Additive, Affine, Arity, Floating, Ix, Metric}
 case class LineSegment[P[_], A](start: Point[P, A], end: Point[P, A])
 
 object LineSegment:
-  given [P[_], A: Numeric](using Additive[P], Ix[P], Metric[P], Arity.Aux[P, 2], Affine.Aux[P, P]): IsIntersectableWith[LineSegment[P, A], Point[P, A]] with
+  given [P[_]: Metric: Additive, A: Numeric](using Arity.Aux[P, 2], Additive[Point[P, _]], Metric[Point[P, _]], Ix[Point[P, _]]): IsIntersectableWith[LineSegment[P, A], Point[P, A]] with
     override type Intersection = Point[P, A]
 
     override def intersect(ls: LineSegment[P, A], c: Point[P, A]): Option[Intersection] = ls match
@@ -39,7 +40,7 @@ object LineSegment:
   /**
    * LineSegment -> LineSegment intersection
     */
-  given [P[_], A: Numeric: Floating] (using Additive[P], Ix[P], Metric[P], Arity.Aux[P, 2], Affine.Aux[P,P]): IsIntersectableWith[LineSegment[P,A], LineSegment[P, A]] with
+  given [P[_]: Ix: Metric: Additive, A: Numeric: Floating] (using Ix[Point[P, _]], Metric[Point[P, _]], Additive[Point[P, _]], Arity.Aux[P, 2]): IsIntersectableWith[LineSegment[P,A], LineSegment[P, A]] with
     override type Intersection = Point[P,A] | LineSegment[P, A]
 
     protected def inrange[A: Numeric](a: (A,A), b: (A, A)): Boolean = (a, b) match
@@ -85,4 +86,16 @@ object LineSegment:
     override def intersects(p1: LineSegment[P, A], p2: LineSegment[P, A]): Boolean = intersect(p1, p2) match
       case Some(_) => true
       case None    => false
+
+  def qdSegment[P[_], A: Floating]
+  (p: Point[P, A], segment: LineSegment[P, A])
+  (using Metric[P], Affine.Aux[P,P], Foldable[P], Apply[P], Metric[Point[P, _]], Additive[Point[P, _]]): A =
+    val zero = Numeric[A].zero
+    val one = Numeric[A].one
+    val l2 = qdA(segment.start, segment.end)
+    if l2 == zero then qdA(p, segment.start)
+    else
+      val t = List(zero, List(one, dot(p ^-^ segment.start, segment.end ^-^ segment.start) / l2).min).max
+      val proj = segment.start ^+^ ((segment.end ^-^ segment.end) ^* t)
+      qdA(p, proj)
 end LineSegment

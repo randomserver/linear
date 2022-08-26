@@ -12,7 +12,7 @@ import se.randomserver.linear
 case class Line[P[_], A](anchor: Point[P, A], dir: P[A])
 
 object Line:
-  def lineThrough[P[_], A: Numeric](p: Point[P, A], q: Point[P, A])(using Additive[P], Affine.Aux[P, P]): Line[P, A] =
+  def lineThrough[P[_]: Additive, A: Numeric](p: Point[P, A], q: Point[P, A])(using Metric[Point[P,_]], Additive[Point[P, _]]): Line[P, A] =
     val dir: P[A] = Point.unapply(q ~-~ p)
     Line(p, dir)
 
@@ -20,17 +20,17 @@ object Line:
     (l1: Line[P, A], l2: Line[P, A]): Boolean = (l1, l2) match
       case Line(_, u) -> Line(_, v) => scalarMultipleOf(u, v)
 
-  def onLine[P[_]: Metric, A: Numeric](p: Point[P, A], l: Line[P, A]) (using Affine.Aux[P, P]) =
+  def onLine[P[_]: Metric, A: Numeric](p: Point[P, A], l: Line[P, A])(using Metric[Point[P, _]], Additive[Point[P, _]]) =
     val u: P[A] = Point.unapply(p ~-~ l.anchor)
     val v: P[A] = l.dir
     p == l.anchor || scalarMultipleOf(u, v)
 
-  given [P[_]: Metric, A: Numeric](using Affine.Aux[P, P]): IsIntersectableWith[Line[P, A], Point[P, A]] with
+  given [P[_]: Metric, A: Numeric](using Metric[Point[P,_]], Additive[Point[P, _]]): IsIntersectableWith[Line[P, A], Point[P, A]] with
     override type Intersection = Point[P, A]
     override def intersect(a: Line[P, A], b: Point[P, A]) = if intersects(a, b) then Some(b) else None
     override def intersects(p1: Line[P, A], p2: Point[P, A]): Boolean = onLine(p2, p1)
 
-  given [P[_]: Metric: Ix, A: Numeric](using Floating[A], Additive[P], Affine.Aux[P, P], Arity.Aux[P, 2]): IsIntersectableWith[Line[P, A], Line[P, A]] with
+  given [P[_]: Additive: Metric: Ix, A: Floating](using Arity.Aux[P, 2], Additive[Point[P, _]], Metric[Point[P, _]], Ix[Point[P, _]]): IsIntersectableWith[Line[P, A], Line[P, A]] with
     import Floating.{*, given}
     override type Intersection = Point[P, A] | Line[P, A]
 

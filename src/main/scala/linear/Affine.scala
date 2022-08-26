@@ -64,7 +64,11 @@ object Affine:
 
     override def diffOffset[A: Numeric](p1: P[A], p2: P[A]): Diff[A] = p1 ^-^ p2
 
+  given [P[_]: Foldable: Apply](using A: Additive[P], M: Metric[P]): Additive[Point[P, _]] with Metric[Point[P, _]] with
+    override def zero[B: Numeric]: Point[P, B] = A.zero
 
+
+  /*
   given [P[_]](using A: Aux[P, P]): Affine[[A] =>> Point[P, A]] with
     type Diff[AA] = Point[A.Diff, AA]
     override def addOffset[A: Numeric](p1: Point[P, A], d: Diff[A]): Point[P, A] = A.addOffset(p1, d)
@@ -72,6 +76,7 @@ object Affine:
     override def subtractOffset[A: Numeric](p1: Point[P, A], d: Diff[A]): Point[P, A] = A.subtractOffset(p1, d)
 
     override def diffOffset[A: Numeric](p1: Point[P, A], p2: Point[P, A]): Diff[A] = A.diffOffset(p1, p2)
+  */
 
   given [P[_], A: Show](using S: Show[P[A]]): Show[Point[P, A]] with
     override def show(t: Point[P, A]): String = s"Point(${S.show(t)})"

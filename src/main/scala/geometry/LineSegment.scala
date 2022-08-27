@@ -11,7 +11,7 @@ import se.randomserver.linear.{Additive, Affine, Arity, Floating, Ix, Metric}
 case class LineSegment[P[_], A](start: Point[P, A], end: Point[P, A])
 
 object LineSegment:
-  given [P[_]: Metric: Additive, A: Numeric](using Arity.Aux[P, 2], Additive[Point[P, _]], Metric[Point[P, _]], Ix[Point[P, _]]): IsIntersectableWith[LineSegment[P, A], Point[P, A]] with
+  given [P[_]: Metric: Additive: Ix, A: Numeric](using Arity.Aux[P, 2], Additive[Point[P, _]], Metric[Point[P, _]]): IsIntersectableWith[LineSegment[P, A], Point[P, A]] with
     override type Intersection = Point[P, A]
 
     override def intersect(ls: LineSegment[P, A], c: Point[P, A]): Option[Intersection] = ls match
@@ -19,10 +19,10 @@ object LineSegment:
         val ab: Point[P, A] = a ~-~ b
         val ac: Point[P, A] = a ~-~ c
         if crossZ(ab, ac) == 0 then
-          val ab: P[A] = Point.unapply(a ~-~ b)
-          val ac: P[A] = Point.unapply(a ~-~ c)
-          val kac = dot((ab), (ac))
-          val kab = dot((ab), (ab))
+          val ab = a ~-~ b
+          val ac = a ~-~ c
+          val kac = dot(ab, ac)
+          val kab = dot(ab, ab)
           if kac < Numeric[A].zero     then None
           else if kac > kab            then None
           else if kac == Numeric[A].zero then Some(c)
@@ -40,7 +40,7 @@ object LineSegment:
   /**
    * LineSegment -> LineSegment intersection
     */
-  given [P[_]: Ix: Metric: Additive, A: Numeric: Floating] (using Ix[Point[P, _]], Metric[Point[P, _]], Additive[Point[P, _]], Arity.Aux[P, 2]): IsIntersectableWith[LineSegment[P,A], LineSegment[P, A]] with
+  given [P[_]: Additive: Metric: Ix, A: Floating](using Arity.Aux[P, 2], Metric[Point[P, _]], Additive[Point[P, _]]): IsIntersectableWith[LineSegment[P,A], LineSegment[P, A]] with
     override type Intersection = Point[P,A] | LineSegment[P, A]
 
     protected def inrange[A: Numeric](a: (A,A), b: (A, A)): Boolean = (a, b) match
@@ -48,13 +48,11 @@ object LineSegment:
         (t0 <= b2) && (t1 >= b1)
 
     override def intersect(a: LineSegment[P, A], b: LineSegment[P, A]): Option[Intersection] = (a, b) match
-      case LineSegment(p1, p2) -> LineSegment(q1, q2) =>
+      case LineSegment(p, p2) -> LineSegment(q, q2) =>
         val zero = Numeric[A].zero
         val one  = Numeric[A].one
-        val p = Point.unapply(p1)
-        val q = Point.unapply(q1)
-        val r = Point.unapply(p2 ~-~ p1)  // Express the line segment as p -> p + r
-        val s = Point.unapply(q2 ~-~ q1)  // Express the line segment as q -> q + s
+        val r = p2 ~-~ p  // Express the line segment as p -> p + r
+        val s = q2 ~-~ q  // Express the line segment as q -> q + s
 
         val rxs = crossZ(r, s)
         val qp = q ^-^ p
@@ -73,13 +71,13 @@ object LineSegment:
           val a = if quadrance(minp) > quadrance(minq) then minp else minq
           val b = if quadrance(maxp) > quadrance(maxq) then  maxq else maxp
 
-          if inrange(range, (zero, one)) then Some(LineSegment(Point(a), Point(b)))
+          if inrange(range, (zero, one)) then Some(LineSegment(a, b))
                                          else None
         else if rxs == zero && crossZ(qp, r) != zero then None // Parallel and non intersecting
         else if rxs != zero then
           val t: A = crossZ(qp, s) / rxs
           val u: A = crossZ(qp, r) /  rxs
-          if t >= zero && t <= one && u >= zero && u <= one then Some(Point(p ^+^ (r ^* t)))
+          if t >= zero && t <= one && u >= zero && u <= one then Some(p ^+^ (r ^* t))
                                                             else None
         else None
 

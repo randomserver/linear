@@ -36,13 +36,19 @@ case class Graph[P[_]: Foldable: Apply: Metric: Additive, A: Numeric: Floating](
     case (vertexId, vertex) => vertexId -> qdA(p, vertex)
   }.minByOption(_._2)
 
-  def addPoint(p: Point[P, A]): (NodeId, Graph[P, A]) =
+  def addPoint(p: Point[P, A]): (Graph[P, A], NodeId) =
     val nodeId = NodeId()
-    nodeId -> copy(
+    copy(
       vertices.updated(nodeId, p)
-    )
+    ) -> nodeId
 
-  def insert(p: Point[P, A], edgeId: EdgeId): Option[Graph[P, A]] = edges.get(edgeId).map {
+  def addEdge(from: NodeId, to: NodeId): (Graph[P, A], EdgeId) =
+    val edgeId = EdgeId()
+    copy(
+      edges = edges.updated(edgeId, Edge(from, to))
+    ) -> edgeId
+
+  def insert(p: Point[P, A], edgeId: EdgeId): Option[(Graph[P, A], NodeId)] = edges.get(edgeId).map {
     case Edge(from, to) =>
       val id = NodeId()
       val e1 = Edge(from, id)
@@ -52,6 +58,12 @@ case class Graph[P[_]: Foldable: Apply: Metric: Additive, A: Numeric: Floating](
         edges.removed(edgeId)
           .updated(EdgeId(), e1)
           .updated(EdgeId(), e2)
-      )
+      ) -> id
   }
+  def update(nodeId: NodeId,point: Point[P, A]): (Graph[P, A], NodeId) = copy(
+    vertices = vertices.updated(nodeId, point)
+  ) -> nodeId
 
+  def segments: Set[LineSegment[P, A]] = edges.map {
+    case _ -> Edge(from, to) => LineSegment(vertices(from), vertices(to))
+  }.toSet

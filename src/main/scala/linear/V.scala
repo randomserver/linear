@@ -86,4 +86,5 @@ object Vector {
   def crossZ[P[_], A: Numeric](a: P[A], b: P[A])(using Arity.Aux[P, 2], Ix[P]) =
     (a ! 0) * (b ! 1) - (a ! 1) * (b ! 0)
 
+  def lerp[P[_]: Additive, A: Numeric](alpha: A, u: P[A], v: P[A]): P[A] = (alpha *^ u) ^+^ ((Numeric[A].one - alpha) *^ v)
 }

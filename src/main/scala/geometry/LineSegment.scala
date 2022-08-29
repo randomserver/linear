@@ -85,7 +85,7 @@ object LineSegment:
       case Some(_) => true
       case None    => false
 
-  def qdSegment[P[_], A: Floating]
+  def qdSegment[P[_], A: Numeric: Fractional]
   (p: Point[P, A], segment: LineSegment[P, A])
   (using Metric[P], Affine.Aux[P,P], Foldable[P], Apply[P], Metric[Point[P, _]], Additive[Point[P, _]]): A =
     val zero = Numeric[A].zero

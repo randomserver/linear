@@ -95,6 +95,6 @@ object LineSegment:
     if l2 == zero then qdA(p, segment.start)
     else
       val t = List(zero, List(one, dot(p ^-^ segment.start, segment.end ^-^ segment.start) / l2).min).max
-      val proj = segment.start ^+^ ((segment.end ^-^ segment.end) ^* t)
+      val proj = segment.start ^+^ ((segment.end ^-^ segment.start) ^* t)
       qdA(p, proj)
 end LineSegment

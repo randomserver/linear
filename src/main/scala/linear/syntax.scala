@@ -2,7 +2,7 @@ package se.randomserver
 package linear
 
 object syntax {
-  export Floating.{*, given}
+  export LinearIntegral.{*, given}
   export R1.{*,given}
   export R2.{*,given}
   export R3.{*,given}

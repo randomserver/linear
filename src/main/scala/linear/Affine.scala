@@ -3,16 +3,14 @@ package linear
 
 import cats.*
 import cats.syntax.{*, given}
-import linear.Floating.{*, given}
 import linear.Additive.{*, given}
+import linear.LinearIntegral.{*, given}
 
 import se.randomserver.linear.Vector.V
 
 import scala.annotation.targetName
-import scala.math.Fractional.Implicits.{*, given}
-import scala.math.Numeric.Implicits.{*, given}
 import scala.reflect.ClassTag
-
+import math.Numeric.Implicits.infixNumericOps
 trait Affine[P[_]]:
   type Diff[_]
   def diffOffset[A: Numeric](p1: P[A], p2: P[A]): Diff[A]
@@ -38,7 +36,7 @@ object Affine:
   def qdA[P[_], B: Numeric](p1: P[B], p2: P[B])(using A: Affine[P], F: Foldable[A.Diff], App: Apply[A.Diff]): B =
     F.sumAll(App.fmap(A.diffOffset(p2, p1))(b => b * b))
 
-  def distanceA[P[_], B: Floating](p1: P[B], p2: P[B])(using A: Affine[P], F: Foldable[A.Diff], App: Apply[A.Diff]): B = sqrt(qdA(p1, p2))
+  def distanceA[P[_], B: LinearIntegral](p1: P[B], p2: P[B])(using A: Affine[P], F: Foldable[A.Diff], App: Apply[A.Diff]): B = sqrt(qdA(p1, p2))
 
   opaque type Point[P[_], A] = P[A]
 

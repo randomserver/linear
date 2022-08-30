@@ -1,7 +1,7 @@
 package se.randomserver
 package geometry
 
-import linear.{Additive, Floating, Metric}
+import linear.{Additive, LinearIntegral, Metric}
 
 import cats.{Apply, Foldable}
 import linear.Affine.Point
@@ -27,7 +27,7 @@ end Graph
 
 import Graph.*
 
-case class Graph[P[_]: Foldable: Apply: Metric: Additive, A: Numeric: Fractional](vertices: Map[NodeId,Point[P, A]] = Map.empty[NodeId, Point[P, A]], edges: Map[EdgeId, Edge] = Map.empty[EdgeId, Edge]):
+case class Graph[P[_]: Foldable: Apply: Metric: Additive, A: LinearIntegral](vertices: Map[NodeId,Point[P, A]] = Map.empty[NodeId, Point[P, A]], edges: Map[EdgeId, Edge] = Map.empty[EdgeId, Edge]):
   def closestEdge(p: Point[P, A]): Option[(EdgeId, A)] = edges.map {
     case (id, Edge(from, to)) => id -> qdSegment(p, LineSegment(vertices(from), vertices(to)))
   }.minByOption(_._2)

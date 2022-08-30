@@ -1,12 +1,13 @@
 package se.randomserver
 package geometry
 
-import cats.{Foldable, Apply}
+import cats.{Apply, Foldable}
 import linear.Affine.Point
 import linear.syntax.{*, given}
+import linear.LinearIntegral.{*, given}
 
-import math.Ordering.Implicits.infixOrderingOps
-import se.randomserver.linear.{Additive, Affine, Arity, Floating, Ix, Metric}
+import se.randomserver.linear.{Additive, Affine, Arity, Ix, LinearIntegral, Metric}
+
 
 case class LineSegment[P[_], A](start: Point[P, A], end: Point[P, A])
 
@@ -40,7 +41,7 @@ object LineSegment:
   /**
    * LineSegment -> LineSegment intersection
     */
-  given [P[_]: Additive: Metric: Ix, A: Floating](using Arity.Aux[P, 2], Metric[Point[P, _]], Additive[Point[P, _]]): IsIntersectableWith[LineSegment[P,A], LineSegment[P, A]] with
+  given [P[_]: Additive: Metric: Ix, A: LinearIntegral](using Arity.Aux[P, 2], Metric[Point[P, _]], Additive[Point[P, _]]): IsIntersectableWith[LineSegment[P,A], LineSegment[P, A]] with
     override type Intersection = Point[P,A] | LineSegment[P, A]
 
     protected def inrange[A: Numeric](a: (A,A), b: (A, A)): Boolean = (a, b) match
@@ -85,7 +86,7 @@ object LineSegment:
       case Some(_) => true
       case None    => false
 
-  def qdSegment[P[_], A: Numeric: Fractional]
+  def qdSegment[P[_], A: LinearIntegral]
   (p: Point[P, A], segment: LineSegment[P, A])
   (using Metric[P], Affine.Aux[P,P], Foldable[P], Apply[P], Metric[Point[P, _]], Additive[Point[P, _]]): A =
     val zero = Numeric[A].zero

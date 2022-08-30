@@ -1,12 +1,14 @@
 package se.randomserver
 package geometry
 
-import linear.{Additive, Affine, Arity, Floating, Ix, Metric, R2}
+import linear.{Additive, Affine, Arity, Ix, LinearIntegral, Metric, R2}
 import linear.syntax.{*, given}
+import linear.LinearIntegral.{*, given}
 import geometry.Vector.*
 
-import math.Numeric.Implicits.infixNumericOps
 import se.randomserver.linear
+
+import scala.math.Integral.Implicits.infixIntegralOps
 
 
 case class Line[P[_], A](anchor: Point[P, A], dir: P[A])
@@ -30,8 +32,7 @@ object Line:
     override def intersect(a: Line[P, A], b: Point[P, A]) = if intersects(a, b) then Some(b) else None
     override def intersects(p1: Line[P, A], p2: Point[P, A]): Boolean = onLine(p2, p1)
 
-  given [P[_]: Additive: Metric: Ix, A: Floating](using Arity.Aux[P, 2], Additive[Point[P, _]], Metric[Point[P, _]], Ix[Point[P, _]]): IsIntersectableWith[Line[P, A], Line[P, A]] with
-    import Floating.{*, given}
+  given [P[_]: Additive: Metric: Ix, A: LinearIntegral] (using Arity.Aux[P, 2], Additive[Point[P, _]], Metric[Point[P, _]], Ix[Point[P, _]]): IsIntersectableWith[Line[P, A], Line[P, A]] with
     override type Intersection = Point[P, A] | Line[P, A]
 
     override def intersect(a: Line[P, A], b: Line[P, A]): Option[Intersection] = (a, b) match

@@ -1,14 +1,11 @@
 package se.randomserver
 package linear
 
-import linear.Floating.{*, given}
+import linear.LinearIntegral.{*, given}
 import linear.Additive.{*, given}
 
 import cats.{Applicative, Apply, Foldable}
-
-import scala.math.Fractional.Implicits.{*, given}
-import scala.math.Numeric.Implicits.{*, given}
-
+import math.Numeric.Implicits.infixNumericOps
 trait Metric[P[_]: Additive](using F: Foldable[P], A: Apply[P]):
   def dot[B: Numeric](p1: P[B], p2: P[B]): B = F.sumAll(
     A.map2(p1, p2) {
@@ -17,9 +14,9 @@ trait Metric[P[_]: Additive](using F: Foldable[P], A: Apply[P]):
   )
   def quadrance[B: Numeric](p: P[B]): B = dot(p, p)
   def qd[B: Numeric](p1: P[B], p2: P[B]): B = quadrance(p1 ^-^ p2)
-  def distance[B: Floating](p1: P[B], p2: P[B]): B = norm(p1 ^-^ p2)
-  def norm[B: Floating](p: P[B]): B = sqrt(quadrance(p))
-  def normalize[B: Floating](p: P[B]) =
+  def distance[B: LinearIntegral](p1: P[B], p2: P[B]): B = norm(p1 ^-^ p2)
+  def norm[B: LinearIntegral](p: P[B]): B = sqrt(quadrance(p))
+  def normalize[B: LinearIntegral](p: P[B]) =
     val l = norm(p)
     A.map(p)(_ / l)
 

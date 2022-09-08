@@ -85,21 +85,21 @@ object Graph:
 
   def pure[F[_]: Applicative, P[_], A, R](a: R) = StateT.pure[F, Graph[P, A], R](a)
 
-  def addPoint[F[_]: Applicative, P[_], A](p: Point[P, A]): GraphStateT[F, P, A, NodeId] = StateT(graph => graph.addPoint(p).pure[F])
-  def addEdge[F[_]: Applicative, P[_], A](n1: NodeId, n2: NodeId): GraphStateT[F, P, A, EdgeId] = StateT(graph => graph.addEdge(n1, n2).pure[F])
+  def addPoint[F[_]: Applicative, P[_], A](p: Point[P, A]): GraphStateT[F, P, A, NodeId] = StateT[F, Graph[P, A], NodeId](graph => graph.addPoint(p).pure[F])
+  def addEdge[F[_]: Applicative, P[_], A](n1: NodeId, n2: NodeId): GraphStateT[F, P, A, EdgeId] = StateT[F, Graph[P, A], EdgeId](graph => graph.addEdge(n1, n2).pure[F])
 
   def insert[F[_]: Applicative, P[_], A](p: Point[P ,A], e: EdgeId): GraphStateT[F, P, A, Option[NodeId]] =
-    StateT(graph => graph.insert(p, e).map(i => i._1 -> Some(i._2)).getOrElse(graph -> None).pure[F])
+    StateT[F, Graph[P, A], Option[NodeId]](graph => graph.insert(p, e).map(i => i._1 -> Some(i._2)).getOrElse(graph -> None).pure[F])
 
-  def update[F[_]: Applicative, P[_], A](n: NodeId, p: Point[P, A]): GraphStateT[F, P, A, NodeId] = StateT(graph => graph.update(n, p).pure[F])
+  def update[F[_]: Applicative, P[_], A](n: NodeId, p: Point[P, A]): GraphStateT[F, P, A, NodeId] = StateT[F, Graph[P, A], NodeId](graph => graph.update(n, p).pure[F])
 
-  def closestEdge[F[_]: Applicative, P[_], A](p: Point[P, A]): GraphStateT[F, P, A, Option[(EdgeId, A)]] = StateT(graph => (graph -> graph.closestEdge(p)).pure[F])
+  def closestEdge[F[_]: Applicative, P[_], A](p: Point[P, A]): GraphStateT[F, P, A, Option[(EdgeId, A)]] = StateT[F, Graph[P, A], Option[(EdgeId, A)]](graph => (graph -> graph.closestEdge(p)).pure[F])
 
-  def closestVertex[F[_]: Applicative,P[_], A](p: Point[P, A]): GraphStateT[F, P, A, Option[(NodeId, A)]] = StateT(graph => (graph -> graph.closestVertex(p)).pure[F])
+  def closestVertex[F[_]: Applicative,P[_], A](p: Point[P, A]): GraphStateT[F, P, A, Option[(NodeId, A)]] = StateT[F, Graph[P, A], Option[(NodeId, A)]](graph => (graph -> graph.closestVertex(p)).pure[F])
 
-  def edges[F[_]: Applicative, P[_], A]: GraphStateT[F, P, A, Map[EdgeId, Edge]]  = StateT.get.map(s => s.edges)
+  def edges[F[_]: Applicative, P[_], A]: GraphStateT[F, P, A, Map[EdgeId, Edge]]  = StateT.get[F, Graph[P, A]].map(s => s.edges)
 
-  def vertices[F[_]: Applicative, P[_], A]: GraphStateT[F, P, A, Map[NodeId, Point[P, A]]] = StateT.get.map(s => s.vertices)
+  def vertices[F[_]: Applicative, P[_], A]: GraphStateT[F, P, A, Map[NodeId, Point[P, A]]] = StateT.get[F, Graph[P, A]].map(s => s.vertices)
 
 
 

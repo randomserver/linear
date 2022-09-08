@@ -15,7 +15,7 @@ import cats.syntax.applicative.{*, given}
 import Graph.*
 
 type GraphStateT[F[_], P[_], A, R] = StateT[F, Graph[P, A], R]
-type GraphState[P[_], A, R] = GraphStateT[Eval, P, A, R]
+type GraphState[P[_], A, R] = State[Graph[P,A], R]
 
 
 case class Graph[P[_]: Foldable: Apply: Metric: Additive, A: LinearIntegral](vertices: Map[NodeId,Point[P, A]] = Map.empty[NodeId, Point[P, A]], edges: Map[EdgeId, Edge] = Map.empty[EdgeId, Edge]):
@@ -82,6 +82,8 @@ object Graph:
   def runF[F[_]: Applicative: FlatMap, P[_], A, R](initial: Graph[P, A])(f: GraphStateT[F, P, A, R]): F[(Graph[P, A], R)] = f.run(initial)
 
   def liftF[F[_]: Applicative, P[_], A, R](fr: F[R]): IndexedStateT[F, Graph[P, A], Graph[P, A], R] = StateT.liftF[F, Graph[P, A], R](fr)
+
+  def pure[F[_]: Applicative, P[_], A, R](a: R) = StateT.pure[F, Graph[P, A], R](a)
 
   def addPoint[F[_]: Applicative, P[_], A](p: Point[P, A]): GraphStateT[F, P, A, NodeId] = StateT(graph => graph.addPoint(p).pure[F])
   def addEdge[F[_]: Applicative, P[_], A](n1: NodeId, n2: NodeId): GraphStateT[F, P, A, EdgeId] = StateT(graph => graph.addEdge(n1, n2).pure[F])

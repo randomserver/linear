@@ -81,6 +81,7 @@ object App extends IOApp:
   //I  }
   //I}
 
+  def doStuff[P[_], A]: GraphState[P, A, Long] = Graph.pure(1L)
   override def run(args: List[String]): IO[ExitCode] = for
     //last  <- Ref.of[IO, Map[ID, Graph.NodeId]](Map.empty)
     //graph <- Ref.of[IO, Graph[V2, Double]](Graph[V2, Double]())
@@ -93,10 +94,17 @@ object App extends IOApp:
     //_ <- stream.compile.drain
     //graph <- graph.get
     //_ = println(graph.segments)
+
+
     graphRef <- Ref.of[IO, Graph[V2, Long]](Graph[V2, Long])
 
 
-    v <- graphRef.modifyState(Graph.vertices)
+    v <- graphRef.modifyState {
+      for
+        one <- doStuff
+        vertices <- Graph.vertices
+      yield ()
+    }
 
   yield ExitCode.Success
 

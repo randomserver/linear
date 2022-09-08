@@ -6,10 +6,11 @@ import cats.effect.syntax.all.{*, given}
 import scala.concurrent.ExecutionContext.global
 import cats.effect.{ExitCode, IO, IOApp, Ref}
 import se.randomserver.geometry.{Graph, GraphState}
-import se.randomserver.linear.V2
+import se.randomserver.linear.{Additive, LinearIntegral, Metric, V2}
 import linear.syntax.{*, given}
 import geometry.syntax.{*, given}
 
+import cats.{Apply, Foldable, Functor}
 import cats.data.{OptionT, State}
 import cats.effect.IO.{IOCont, Uncancelable}
 import fs2.{Pipe, Stream}
@@ -81,7 +82,15 @@ object App extends IOApp:
   //I  }
   //I}
 
-  def doStuff[P[_], A]: GraphState[P, A, Long] = Graph.pure(1L)
+  def doStuff[P[_]: Foldable: Apply: Additive: Metric, A: LinearIntegral](p: Point[P, A]): GraphState[P, A, (Long, Graph.NodeId)] = for {
+    a <- Graph.pure(1L)
+    closest <- Graph.closestVertex(p)
+    pointId <- Graph.addPoint(p)
+    _ = closest match {
+      case Some(nodeId -> _) => Graph.addPoint(p)
+      case None =>  Graph.addPoint(p)
+    }
+  } yield a -> pointId
   override def run(args: List[String]): IO[ExitCode] = for
     //last  <- Ref.of[IO, Map[ID, Graph.NodeId]](Map.empty)
     //graph <- Ref.of[IO, Graph[V2, Double]](Graph[V2, Double]())
@@ -99,12 +108,7 @@ object App extends IOApp:
     graphRef <- Ref.of[IO, Graph[V2, Long]](Graph[V2, Long])
 
 
-    v <- graphRef.modifyState {
-      for
-        one <- doStuff
-        vertices <- Graph.vertices
-      yield ()
-    }
+    v <- graphRef.modifyState(doStuff(Point(V2(1L, 1L))))
 
   yield ExitCode.Success
 

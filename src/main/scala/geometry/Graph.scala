@@ -11,8 +11,9 @@ import geometry.syntax.{*, given}
 
 import cats.data.{IndexedStateT, State, StateT}
 import cats.syntax.applicative.{*, given}
-
 import Graph.*
+
+import scala.collection.immutable.{AbstractSet, SortedSet}
 
 type GraphState[P[_], A, R] = State[Graph[P,A], R]
 
@@ -57,6 +58,17 @@ case class Graph[P[_]: Foldable: Apply: Metric: Additive, A: LinearIntegral](ver
   def next(lastId: NodeId): Set[EdgeId] = edges.collect {
     case (id, edge) if edge.from == lastId => id
   }.toSet
+
+  def pathWhile(edgeId: EdgeId)(stop: EdgeId => Boolean): Option[Seq[EdgeId]] =
+    def go(id: EdgeId, path: Seq[EdgeId], depth: Int = 5): Option[Set[Seq[EdgeId]]] = edges.get(id) match
+      case None => None
+      case edge if stop(id) => Some(Set(path :+ id))
+      case edge => continuation(id) match
+        case s if s.isEmpty => None
+        case s => Some(
+          s.flatMap(e => go(e, path :+ id, depth - 1)).flatten
+        )
+    go(edgeId, Seq.empty).flatMap(_.minByOption(b => b.length))
 
   def continuation(edgeId: EdgeId): Set[EdgeId] = edges.get(edgeId) match
     case None => Set.empty

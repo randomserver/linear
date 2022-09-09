@@ -54,6 +54,16 @@ case class Graph[P[_]: Foldable: Apply: Metric: Additive, A: LinearIntegral](ver
     vertices = vertices.updated(nodeId, point)
   ) -> nodeId
 
+  def next(lastId: NodeId): Set[EdgeId] = edges.collect {
+    case (id, edge) if edge.from == lastId => id
+  }.toSet
+
+  def continuation(edgeId: EdgeId): Set[EdgeId] = edges.get(edgeId) match
+    case None => Set.empty
+    case Some(fromEdge) => edges.collect {
+      case (id, edge) if fromEdge.to == edge.from => id
+    }.toSet
+
   def segments: Set[LineSegment[P, A]] = edges.map {
     case _ -> Edge(from, to) => LineSegment(vertices(from), vertices(to))
   }.toSet
@@ -79,8 +89,9 @@ object Graph:
 
   def run[P[_], A, R](initial: Graph[P, A])(f: GraphState[P, A, R]): (Graph[P, A], R) = f.run(initial).value
 
+  def get[P[_], A]: GraphState[P, A, Graph[P, A]] = State.get[Graph[P, A]]
 
-  def pure[P[_], A, R](a: R) = State.pure[Graph[P, A], R](a)
+  def pure[P[_], A, R](a: R): GraphState[P, A, R] = State.pure[Graph[P, A], R](a)
 
   def addPoint[P[_], A](p: Point[P, A]): GraphState[P, A, NodeId] = State[Graph[P, A], NodeId](graph => graph.addPoint(p))
   def addEdge[P[_], A](n1: NodeId, n2: NodeId): GraphState[P, A, EdgeId] = State[Graph[P, A], EdgeId](graph => graph.addEdge(n1, n2))
@@ -99,8 +110,7 @@ object Graph:
 
   def vertices[P[_], A]: GraphState[P, A, Map[NodeId, Point[P, A]]] = State.get[Graph[P, A]].map(s => s.vertices)
 
+  def edge[P[_], A](edgeId: EdgeId): GraphState[P, A, Option[Edge]] = State.get[Graph[P, A]].map(_.edges.get(edgeId))
 
-
-
-
+  def vertex[P[_], A](nodeId: NodeId): GraphState[P, A, Option[Point[P, A]]] = State.get[Graph[P, A]].map(_.vertices.get(nodeId))
 end Graph

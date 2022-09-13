@@ -23,14 +23,3 @@ lazy val root = (project in file("."))
       "-Ykind-projector:underscores"
     )
   )
-
-lazy val `live-graph` = (project in file("./live-graph"))
-  .settings(
-    name := "live-graph",
-    idePackagePrefix := Some("se.randomserver"),
-    libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-core"        % CatsVersion,
-      "org.typelevel" %% "cats-effect"      % CatsEffectVersion,
-      "co.fs2"        %% "fs2-core"         % FS2Version
-    ),
-  ).dependsOn(root)

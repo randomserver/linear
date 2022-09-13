@@ -8,11 +8,13 @@ import linear.LinearIntegral.{*, given}
 
 import se.randomserver.linear.{Additive, Affine, Arity, Ix, LinearIntegral, Metric}
 
-
 case class LineSegment[P[_], A](start: Point[P, A], end: Point[P, A])
 
 object LineSegment:
-  given [P[_]: Metric: Additive: Ix, A: Numeric](using Arity.Aux[P, 2], Additive[Point[P, _]], Metric[Point[P, _]]): IsIntersectableWith[LineSegment[P, A], Point[P, A]] with
+  private def one[A: LinearIntegral] = Numeric[A].one
+  private def zero[A: LinearIntegral] = Numeric[A].zero
+  private def two[A: LinearIntegral] = one + one
+  given [P[_]: Metric: Additive: Ix, A: LinearIntegral: Numeric](using Arity.Aux[P, 2], Additive[Point[P, _]], Metric[Point[P, _]]): IsIntersectableWith[LineSegment[P, A], Point[P, A]] with
     override type Intersection = Point[P, A]
 
     override def intersect(ls: LineSegment[P, A], c: Point[P, A]): Option[Intersection] = ls match
@@ -24,11 +26,11 @@ object LineSegment:
           val ac = a ~-~ c
           val kac = dot(ab, ac)
           val kab = dot(ab, ab)
-          if kac < Numeric[A].zero     then None
-          else if kac > kab            then None
-          else if kac == Numeric[A].zero then Some(c)
-          else if kac == kab           then Some(c)
-          else if Numeric[A].zero < kac && kac < kab then Some(c)
+          if kac < zero                    then None
+          else if kac > kab                then None
+          else if kac == zero              then Some(c)
+          else if kac == kab               then Some(c)
+          else if zero < kac && kac < kab  then Some(c)
           else None
         else
           None
@@ -50,8 +52,6 @@ object LineSegment:
 
     override def intersect(a: LineSegment[P, A], b: LineSegment[P, A]): Option[Intersection] = (a, b) match
       case LineSegment(p, p2) -> LineSegment(q, q2) =>
-        val zero = Numeric[A].zero
-        val one  = Numeric[A].one
         val r = p2 ~-~ p  // Express the line segment as p -> p + r
         val s = q2 ~-~ q  // Express the line segment as q -> q + s
 
@@ -89,12 +89,20 @@ object LineSegment:
   def qdSegment[P[_], A: LinearIntegral]
   (p: Point[P, A], segment: LineSegment[P, A])
   (using Metric[P], Affine.Aux[P,P], Foldable[P], Apply[P], Metric[Point[P, _]], Additive[Point[P, _]]): A =
-    val zero = Numeric[A].zero
-    val one = Numeric[A].one
     val l2 = qdA(segment.start, segment.end)
     if l2 == zero then qdA(p, segment.start)
     else
       val t = List(zero, List(one, dot(p ^-^ segment.start, segment.end ^-^ segment.start) / l2).min).max
       val proj = segment.start ^+^ ((segment.end ^-^ segment.start) ^* t)
       qdA(p, proj)
+
+  def closestPoint[P[_], A: LinearIntegral](p: Point[P, A], segment: LineSegment[P, A])(using Affine.Aux[P, P], Foldable[P], Apply[P], Metric[Point[P, _]], Additive[Point[P, _]]): Point[P, A] = segment match
+    case LineSegment(a, b) =>
+      val v = b ^-^ a
+      val u = a ^-^ p
+      val t = -dot(v, u) / quadrance(v)
+      if t < zero then a
+      else if t > one then a ^+^ v
+      else a ^+^ (t *^ v)
+
 end LineSegment

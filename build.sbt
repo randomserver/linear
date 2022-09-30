@@ -2,6 +2,10 @@ ThisBuild / scalaVersion := "3.1.3"
 ThisBuild / organization := "se.randomserver"
 ThisBuild / homepage := Some(url("https://github.com/randomserver/linear"))
 
+lazy val CatsVersion = "2.8.0"
+lazy val CatsEffectVersion = "3.3.12"
+lazy val FS2Version = "3.2.12"
+
 lazy val root = (project in file("."))
   .enablePlugins(GitVersioning)
   .settings(
@@ -13,7 +17,7 @@ lazy val root = (project in file("."))
       else None
     },
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-core" % "2.8.0"
+      "org.typelevel" %% "cats-core" % CatsVersion
     ),
     Compile / scalacOptions ++= Seq(
       "-Ykind-projector:underscores"

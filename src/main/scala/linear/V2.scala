@@ -4,9 +4,9 @@ package linear
 import cats.*
 import cats.syntax.{*, given}
 import se.randomserver.linear
-import se.randomserver.linear.Vector.V
 
 import scala.math.Numeric.Implicits.given
+import linear.Vector.V
 
 case class V2[T](x: T, y: T)
 
@@ -17,6 +17,10 @@ object V2Instances:
 
   given Arity[V2] with
     type Size = 2
+
+    override def toV[A](p: V2[A]): V[Size, A] = V(p.x, p.y)
+
+    override def fromV[A](v: V[Size, A]): V2[A] = V2(v ! 0, v ! 1)
 
   given Ix[V2] with
     override def elem[B](p: V2[B], n: Int)(using Arity[V2]): B = (n, p)  match

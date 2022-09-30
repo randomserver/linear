@@ -27,6 +27,9 @@ trait Additive[P[_]: Apply]:
   extension [B: Fractional](p: P[B])
     @targetName("scalarDivision")
     def ^/(s: B): P[B] = Apply[P].map(p)(_ / s)
+
+  extension [A: Numeric](a: A)
+    def *^(p: P[A]) = Apply[P].map(p)(_ * a)
 end Additive
 
 

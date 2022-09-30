@@ -3,18 +3,15 @@ package linear
 
 import cats.{Applicative, Apply, Foldable, Functor, Show}
 import cats.syntax.show.{*, given}
+import se.randomserver.linear.Vector.V
 
 import scala.collection.immutable as IM
 import scala.math.Numeric.Implicits.infixNumericOps
 import scala.reflect.ClassTag
-
-
-
-
 import scala.compiletime.*
 
 trait Ix[P[_]]:
-  inline def checkArity(n: Int)(using f: Arity[P]): Int = if n >= constValue[f.Size] then error("Wrong arity") else n
+  inline def checkArity(n: Int)(using f: Arity[P]): Int = if n >= constValue[f.Size] then error(s"Wrong arity") else n
   def elem[B](p: P[B], n: Int)(using f: Arity[P]): B
   extension [B](p: P[B])(using f: Arity[P])
     inline def !(n: Int): B =  elem[B](p, checkArity(n))
@@ -28,8 +25,8 @@ end Arity
 trait Arity[P[_]]:
   type Size <: Int
 
-trait Dim[P[_]]:
-  def dim[A](a: P[A]): Int
+  def toV[A](p: P[A]): Vector.V[Size, A]
+  def fromV[A](v: Vector.V[Size, A]): P[A]
 
 object Vector {
   case class V[N <: Int, A](val elems: IM.Vector[A])
@@ -74,10 +71,13 @@ object Vector {
 
     override def subtractOffset[A: Numeric](p1: V[N, A], d: Diff[A]): V[N, A] = p1 ^-^ d
 
-  //def toV[P[_], A, N <: Int](p: P[A])(using a: Arity.Aux[P, N], f: Finite.Aux[P, N]): V[N, A] = f.toV(p)
 
   given [N <: Int]: Arity[V[N, _]] with
     override type Size = N
+
+    override def toV[A](p: V[Size, A]): V[Size, A] = identity(p)
+    override def fromV[A](v: V[Size, A]): V[Size, A] = identity(v)
+
 
   given [N <: Int]: Ix[V[N, _]] with
     override def elem[B](p: V[N, B], n: Int)(using f: Arity[V[N, _]]): B = p.elems(n)
@@ -87,4 +87,6 @@ object Vector {
     (a ! 0) * (b ! 1) - (a ! 1) * (b ! 0)
 
   def lerp[P[_]: Additive, A: Numeric](alpha: A, u: P[A], v: P[A]): P[A] = (alpha *^ u) ^+^ ((Numeric[A].one - alpha) *^ v)
+  def toV[P[_], A](p: P[A])(using a: Arity[P]): V[a.Size, A] = a.toV(p)
+  def fromV[P[_], A, N <: Int](v: V[N, A])(using a: Arity.Aux[P, N]): P[A] = a.fromV(v)
 }

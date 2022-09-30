@@ -14,7 +14,13 @@ case class V3[B](x: B, y: B, z: B)
 object V3Instances:
   given [A: Show]: Show[V3[A]] with
     override def show(t: V3[A]): String = s"V3(${t.x}, ${t.y}, ${t.z})"
-    
+
+  given Arity[V3] with
+    type Size = 3
+    override def toV[A](p: V3[A]): V[Size, A] = V(p.x, p.y)
+
+    override def fromV[A](v: V[Size, A]): V3[A] = V3(v ! 0, v ! 1, v ! 2)
+
   given Ix[V3] with
     override def elem[B](p: V3[B], n: Int)(using f: Arity[V3]): B = (n, p) match
       case 0 -> V3(x, _, _) => x

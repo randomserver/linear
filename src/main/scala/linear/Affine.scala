@@ -73,6 +73,10 @@ object Affine:
   given [P[_], N <: Int](using arity: Arity.Aux[P, N]): Arity[Point[P, _]] with
     type Size = arity.Size
 
+    override def toV[A](p: Point[P, A]): V[Size, A] = arity.toV(p)
+
+    override def fromV[A](v: V[Size, A]): Point[P, A] = arity.fromV(v)
+
   given [P[_]: Arity](using ix: Ix[P]): Ix[Point[P, _]] with
     override def elem[B](p: Point[P, B], n: Int)(using f: Arity[Point[P, _]]): B = ix.elem(p, n)
 
